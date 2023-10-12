@@ -1,8 +1,9 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 
 import Card from "../UI/Card/Card";
 import classes from "./Login.module.css";
 import Button from "../UI/Button/Button";
+import AuthContext from "../../store/auth-context";
 
 const emailReducer = (state, action) => {
   if(action.type === 'USER_INPUT'){
@@ -42,24 +43,29 @@ const Login = (props) => {
     value: '',
     isValid: null,
   });
-  // useEffect(
-  //   () => {
-  //     const identifier = setTimeout(() => {
-  //       console.log("Checking form validity!");
-  //       setFormIsValid(
-  //         enteredPassword.trim().length > 6 &&
-  //           enteredEmail.includes("@") &&
-  //           enteredCollageName.trim().length > 2
-  //       );
-  //     }, 500);
 
-  //     return () => {
-  //       console.log("CleanUp");
-  //       clearTimeout(identifier);
-  //     };
-  //   }, // [setFormIsValid, enteredPassword, enteredEmail] );
-  //   [enteredPassword, enteredEmail, enteredCollageName]
-  // );
+  const authCtx = useContext(AuthContext);
+
+  const {isValid: emailIsValid} = emailState;
+  const {isValid: passwordIsValid} = passwordState
+  useEffect(
+    () => {
+      const identifier = setTimeout(() => {
+        console.log("Checking form validity!");
+        setFormIsValid(
+          emailIsValid &&
+            passwordIsValid &&
+            enteredCollageName.trim().length > 2
+        );
+      }, 500);
+
+      return () => {
+        console.log("CleanUp");
+        clearTimeout(identifier);
+      };
+    }, // [setFormIsValid, enteredPassword, enteredEmail] );
+    [passwordIsValid, emailIsValid, enteredCollageName]
+  );
 
   const emailChangeHandler = (event) => {
     // setEnteredEmail(event.target.value);
@@ -107,7 +113,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value, enteredCollageName);
+    authCtx.onLogin(emailState.value, passwordState.value, enteredCollageName);
   };
 
   return (
